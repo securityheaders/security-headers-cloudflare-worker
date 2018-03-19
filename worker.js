@@ -33,15 +33,15 @@ async function addHeaders(req) {
         })
     }
 
-	Object.keys(securityHeaders).map(function(name, index) {
+	Object.keys(securityHeaders).map((name, index) => {
 		newHdrs.set(name, securityHeaders[name]);
 	})
 
-	Object.keys(sanitiseHeaders).map(function(name, index) {
+	Object.keys(sanitiseHeaders).map((name, index) => {
 		newHdrs.set(name, sanitiseHeaders[name]);
 	})
 
-	removeHeaders.forEach(function(name){
+	removeHeaders.forEach((name) => {
 		newHdrs.delete(name)
 	})
 
