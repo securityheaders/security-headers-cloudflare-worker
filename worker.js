@@ -25,13 +25,13 @@ async function addHeaders(req) {
 	let response = await fetch(req)
 	let newHdrs = new Headers(response.headers)
 
-	if (newHdrs.has("Content-Type") && newHdrs.get("Content-Type") !== "text/html") {
+    if (newHdrs.has("Content-Type") && !newHdrs.get("Content-Type").includes("text/html")) {
         return new Response(response.body , {
             status: response.status,
             statusText: response.statusText,
             headers: newHdrs
         })
-	}
+    }
 
 	Object.keys(securityHeaders).map(function(name, index) {
 		newHdrs.set(name, securityHeaders[name]);
