@@ -25,18 +25,14 @@ async function addHeaders(req) {
 	let response = await fetch(req)
 	let newHdrs = new Headers(response.headers)
 
-	if (newHdrs.has("Content-Type") && !newHdrs.get("Content-Type").includes("text/html")) {
-		return new Response(response.body , {
-			status: response.status,
-			statusText: response.statusText,
-			headers: newHdrs
+	if (newHdrs.has("Content-Type") && newHdrs.get("Content-Type").includes("text/html")) {
+	        Object.keys(securityHeaders).forEach(name => {
+		       newHdrs.set(name, securityHeaders[name]);
 		})
 	}
 
-	let setHeaders = Object.assign({}, securityHeaders, sanitiseHeaders)
-
-	Object.keys(setHeaders).forEach(name => {
-		newHdrs.set(name, setHeaders[name]);
+	Object.keys(sanitiseHeaders).forEach(name => {
+		newHdrs.set(name, sanitiseHeaders[name]);
 	})
 
 	removeHeaders.forEach(name => {
