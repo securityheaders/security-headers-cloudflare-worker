@@ -1,52 +1,42 @@
-let securityHeaders = {
-	"Content-Security-Policy" : "upgrade-insecure-requests",
-	"Strict-Transport-Security" : "max-age=1000",
-	"X-Xss-Protection" : "1; mode=block",
-	"X-Frame-Options" : "DENY",
-	"X-Content-Type-Options" : "nosniff",
-	"Referrer-Policy" : "strict-origin-when-cross-origin",
-	"Feature-Policy" : "camera 'none'; geolocation 'none'; microphone 'none'",
-}
-
-let sanitiseHeaders = {
-	"Server" : "My New Server Header!!!",
-}
-
-let removeHeaders = [
-	"Public-Key-Pins",
-	"X-Powered-By",
-	"X-AspNet-Version",
-]
-
-addEventListener('fetch', event => {
-	event.respondWith(addHeaders(event.request))
-})
+const securityHeaders = {
+        "Content-Security-Policy": "upgrade-insecure-requests",
+        "Strict-Transport-Security": "max-age=1000",
+        "X-Xss-Protection": "1; mode=block",
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+    },
+    sanitiseHeaders = {
+        Server: ""
+    },
+    removeHeaders = [
+        "Public-Key-Pins",
+        "X-Powered-By",
+        "X-AspNet-Version"
+    ];
 
 async function addHeaders(req) {
-	let response = await fetch(req)
-	let newHdrs = new Headers(response.headers)
+    const response = await fetch(req),
+        newHeaders = new Headers(response.headers),
+        setHeaders = Object.assign({}, securityHeaders, sanitiseHeaders);
 
-	if (newHdrs.has("Content-Type") && !newHdrs.get("Content-Type").includes("text/html")) {
-		return new Response(response.body , {
-			status: response.status,
-			statusText: response.statusText,
-			headers: newHdrs
-		})
-	}
+    if (newHeaders.has("Content-Type") && !newHeaders.get("Content-Type").includes("text/html")) {
+        return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: newHeaders
+        });
+    }
 
-	let setHeaders = Object.assign({}, securityHeaders, sanitiseHeaders)
+    Object.keys(setHeaders).forEach(name => newHeaders.set(name, setHeaders[name]));
 
-	Object.keys(setHeaders).forEach(name => {
-		newHdrs.set(name, setHeaders[name]);
-	})
+    removeHeaders.forEach(name => newHeaders.delete(name));
 
-	removeHeaders.forEach(name => {
-		newHdrs.delete(name)
-	})
-
-	return new Response(response.body , {
-		status: response.status,
-		statusText: response.statusText,
-		headers: newHdrs
-	})
+    return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: newHeaders
+    });
 }
+
+addEventListener("fetch", event => event.respondWith(addHeaders(event.request)));
