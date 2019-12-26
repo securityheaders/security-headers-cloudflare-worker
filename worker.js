@@ -1,11 +1,11 @@
 let securityHeaders = {
 	"Content-Security-Policy" : "upgrade-insecure-requests",
-	"Strict-Transport-Security" : "max-age=1000",
+	"Strict-Transport-Security" : "max-age=2592000",
 	"X-Xss-Protection" : "1; mode=block",
 	"X-Frame-Options" : "DENY",
 	"X-Content-Type-Options" : "nosniff",
 	"Referrer-Policy" : "strict-origin-when-cross-origin",
-	"Feature-Policy" : "camera 'none'; geolocation 'none'; microphone 'none'",
+	"Feature-Policy": "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'"
 }
 
 let sanitiseHeaders = {
