@@ -1,11 +1,12 @@
 const securityHeaders = {
-        "Content-Security-Policy": "upgrade-insecure-requests",
-        "Strict-Transport-Security": "max-age=1000",
-        "X-Xss-Protection": "1; mode=block",
-        "X-Frame-Options": "DENY",
-        "X-Content-Type-Options": "nosniff",
-        "Referrer-Policy": "strict-origin-when-cross-origin"
-    },
+    "Content-Security-Policy": "upgrade-insecure-requests",
+    "Strict-Transport-Security": "max-age=1000",
+    "X-Xss-Protection": "1; mode=block",
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Feature-Policy": "geolocation none;midi none;notifications none;push none;sync-xhr none;microphone none;camera none;magnetometer none;gyroscope none;speaker self;vibrate none;fullscreen self;payment none;"
+},
     sanitiseHeaders = {
         Server: ""
     },
@@ -15,10 +16,16 @@ const securityHeaders = {
         "X-AspNet-Version"
     ];
 
-async function addHeaders(req) {
+async function addHeaders(req, event) {
     const response = await fetch(req),
         newHeaders = new Headers(response.headers),
         setHeaders = Object.assign({}, securityHeaders, sanitiseHeaders);
+
+    if (response.status < 200) {
+        //Easiest way to allow request to pass throw
+        event.passThroughOnException()
+        throw "WS Connection"
+    }
 
     if (newHeaders.has("Content-Type") && !newHeaders.get("Content-Type").includes("text/html")) {
         return new Response(response.body, {
@@ -31,7 +38,6 @@ async function addHeaders(req) {
     Object.keys(setHeaders).forEach(name => newHeaders.set(name, setHeaders[name]));
 
     removeHeaders.forEach(name => newHeaders.delete(name));
-
     return new Response(response.body, {
         status: response.status,
         statusText: response.statusText,
@@ -39,4 +45,6 @@ async function addHeaders(req) {
     });
 }
 
-addEventListener("fetch", event => event.respondWith(addHeaders(event.request)));
+addEventListener("fetch", event => {
+    event.respondWith(addHeaders(event.request, event))
+});
